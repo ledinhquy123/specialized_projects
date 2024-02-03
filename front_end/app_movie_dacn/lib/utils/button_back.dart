@@ -1,25 +1,24 @@
-import 'package:app_movie/constant/colors.dart';
 import 'package:flutter/material.dart';
 
-Widget showButtonBack(BuildContext context) {
+Widget showButtonBack(BuildContext context, Color color1, Color color2, IconData icon, double top, double left) {
   return Positioned(
-    top: 64,
-    left: 0,
+    top: top,
+    left: left,
     child: InkWell(
       onTap: () => Navigator.pop(context),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [ primaryMain1, primaryMain2 ],
+            colors: [ color1, color2 ],
             begin: Alignment.centerLeft,
             end: Alignment.centerRight
           ),
-          borderRadius: BorderRadius.all(
+          borderRadius: const BorderRadius.all(
             Radius.circular(40)
           )
         ),
-        child: const Icon(
-          Icons.arrow_back,
+        child: Icon(
+          icon,
           color: Colors.white,
         ),
       ),

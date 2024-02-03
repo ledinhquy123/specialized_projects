@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('screens', function (Blueprint $table) {
+        Schema::create('weekdays', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->nullable();
-            $table->tinyInteger('status')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('screens');
+        Schema::dropIfExists('weekdays');
     }
 };

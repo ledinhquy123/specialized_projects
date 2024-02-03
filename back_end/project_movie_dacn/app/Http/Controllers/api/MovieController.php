@@ -3,13 +3,20 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Actor;
 use App\Models\Movie;
+use App\Models\Showtime;
+use App\Models\Weekday;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 
 class MovieController extends Controller
 {
     private $headers = [];
+    private $defaultOverview = 'Nhân vật King Kong được nhà làm phim người Mỹ Merian C. Cooper hình thành và tạo ra . Trong phim gốc, tên của nhân vật là Kong, cái tên được đặt cho anh ta bởi cư dân của " Đảo đầu lâu " hư cấu ở Ấn Độ Dương , nơi Kong sống cùng với các loài động vật ngoại cỡ khác, chẳng hạn như thằn lằn đầu rắn , thằn lằn bay và nhiều loài khủng long khác nhau . Một đoàn làm phim người Mỹ, do Carl Denham dẫn đầu , bắt giữ Kong và đưa anh ta đến Thành phố New York để trưng bày với tư cách là " Kỳ quan thứ tám của thế giới ".';
+    private $defaultTrailer = 'https://www.youtube.com/watch?v=_inKs4eeHiI';
+
+
     public function __construct() {
         $this->headers = [
             'accept' => 'application/json',
@@ -47,9 +54,45 @@ class MovieController extends Controller
         // If found $trailerPath
         if($response['results']) {
             $trailerPath = 'https://www.youtube.com/watch?v='.$response['results'][0]['key'];
+        }else {
+            $trailerPath = $this->defaultTrailer;
         }
         
         return $trailerPath ;
+    }
+
+    public function getDetailMovie($idMovie) {
+        $response = Http::withHeaders($this->headers)
+        ->get('https://api.themoviedb.org/3/movie/'.$idMovie.'?language=US');
+        $response = $response->json();
+        $response = [
+            'name' => !empty($response['production_countries']) ? $response['production_countries'][0]['name'] : 'Vietnam',
+            'runtime' => $response['runtime']
+        ];
+        return $response;
+    }
+
+    public function getActor($idMovie) {
+        $response = Http::withHeaders($this->headers)
+        ->get('https://api.themoviedb.org/3/movie/'.$idMovie.'/credits?language=vi');
+        $response = $response->json();
+        $actors = $response['cast'];
+
+        $dataActor = [];
+        foreach($actors as $item) {
+            $data['name'] = $item['name'];
+            $data['gender'] = $item['gender'];
+            $data['popularity'] = $item['popularity'];
+            if($item['profile_path']) {
+                $data['profile_path'] = 'https://image.tmdb.org/t/p/original' . $item['profile_path'];
+            } else {
+                $data['profile_path'] = 'https://i.pinimg.com/736x/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg';
+            }
+            if ($item['character']) $data['character'] = $item['character'];
+            else $data['character'] = $item['name'];
+            $dataActor[] = $data;
+        }
+        return response()->json($dataActor);
     }
 
     // Handle
@@ -57,35 +100,55 @@ class MovieController extends Controller
         $response = Http::withHeaders($this->headers)
         ->get($apiUrl);
         $response = $response->json();
-        $dataMovie = [
-            'totalResults' => $response['total_results'],
-            'results' => $response['results']
-        ];
+        $response = $response['results'];
         $genres = $this->getAllGenres();
 
 
-        foreach($dataMovie['results'] as $item) {
-            $movie = Movie::where('title', $item['title'])->get();
+        foreach($response as $item) {
+            $movie = Movie::where('id_movie', $item['id'])->first();
 
-            if($movie->isEmpty()) {
+            if(!$movie) {
                 $movie = new Movie();
+
+                $movie->id_movie = $item['id'];
                 $movie->title = $item['title'];
                 foreach($item['genre_ids'] as $genre_id) {
-                    $movie->genres .= $genres[$genre_id] . ','; 
+                    $movie->genres .= $genres[$genre_id] . ', '; 
                 }
-                $movie->genres = substr($movie->genres, 0, -1);
-                $movie->over_view = $item['overview'];
+                $movie->genres = substr($movie->genres, 0, -2);
+                if($item['overview']){
+                    $movie->over_view = $item['overview'];
+                }else {
+                    $movie->over_view = $this->defaultOverview;
+                }
                 if($item['poster_path']) {
                     $movie->poster_path = 'https://image.tmdb.org/t/p/original' . $item['poster_path'];
+                } else if ($item['backdrop_path']) {
+                    $movie->poster_path = 'https://image.tmdb.org/t/p/original' . $item['backdrop_path'];
                 }
                 if($item['backdrop_path']) {
                     $movie->backdrop_path = 'https://image.tmdb.org/t/p/original' . $item['backdrop_path'];
+                }else if ($item['poster_path']) {
+                    $movie->backdrop_path = 'https://image.tmdb.org/t/p/original' . $item['poster_path'];
                 }
                 $movie->video_path = $this->getTrailer($item['id'], $item['original_language']);
                 $movie->vote_count = $item['vote_count'];
                 $movie->vote_average = $item['vote_average'];
+                
                 $movie->release_date = $item['release_date'];
-                $movie->save();
+                $detailMovie = $this->getDetailMovie($item['id']);
+
+                $movie->country = $detailMovie['name'];
+                if($movie->runtime) $movie->runtime = $detailMovie['runtime'];
+                else $movie->runtime = '120';
+                
+                if($apiUrl == 'https://api.themoviedb.org/3/movie/now_playing?language=vi&page=1&region=VN') {
+                    $movie->status = 1;
+                }
+
+                if($movie->genres && $movie->over_view && $movie->poster_path && $movie->backdrop_path && $movie->video_path && $movie->release_date) {
+                    $movie->save();
+                }else continue;
             }
             $data[] = $movie;
         }
@@ -106,9 +169,8 @@ class MovieController extends Controller
     // Get up coming
     public function getUpcoming() {
         $timeNow = Carbon::now()->toDateString();
-        $data = [];
         // Get total pages = 3
-        for($i = 1; $i <= 3; $i++) {
+        for($i = 1; $i <= 2; $i++) {
             $response = Http::withHeaders($this->headers)
             ->get('https://api.themoviedb.org/3/movie/upcoming?page='.$i.'&language=vi&region=US&primary_release_date.gte='.$timeNow);
             $response = $response->json();
@@ -120,28 +182,46 @@ class MovieController extends Controller
             $genres = $this->getAllGenres();
     
             foreach($dataMovie['results'] as $item) {
-                $movie = Movie::where('title', $item['title'])->get();
-    
-                if($movie->isEmpty()) {
-                    if(!empty($item['overview'])) {
+                $movie = Movie::where('id_movie', $item['id'])->first();
+
+                if(!$movie) {
+                    if(Carbon::parse($timeNow)->lt(Carbon::parse($item['release_date']))) {
                         $movie = new Movie();
+
+                        $movie->id_movie = $item['id'];
                         $movie->title = $item['title'];
                         foreach($item['genre_ids'] as $genre_id) {
-                            $movie->genres .= $genres[$genre_id] . ','; 
+                            $movie->genres .= $genres[$genre_id] . ', '; 
                         }
-                        $movie->genres = substr($movie->genres, 0, -1);
-                        $movie->over_view = $item['overview'];
+                        $movie->genres = substr($movie->genres, 0, -2);
+                        if($item['overview']){
+                            $movie->over_view = $item['overview'];
+                        }else {
+                            $movie->over_view = $this->defaultOverview;
+                        }
                         if($item['poster_path']) {
                             $movie->poster_path = 'https://image.tmdb.org/t/p/original' . $item['poster_path'];
+                        }else if ($item['backdrop_path']) {
+                            $movie->poster_path = 'https://image.tmdb.org/t/p/original' . $item['backdrop_path'];
                         }
                         if($item['backdrop_path']) {
                             $movie->backdrop_path = 'https://image.tmdb.org/t/p/original' . $item['backdrop_path'];
+                        }else if ($item['poster_path']) {
+                            $movie->backdrop_path = 'https://image.tmdb.org/t/p/original' . $item['poster_path'];
                         }
                         $movie->video_path = $this->getTrailer($item['id'], $item['original_language']);
                         $movie->vote_count = $item['vote_count'];
                         $movie->vote_average = $item['vote_average'];
                         $movie->release_date = $item['release_date'];
-                        $movie->save();
+
+                        $detailMovie = $this->getDetailMovie($item['id']);
+
+                        $movie->country = $detailMovie['name'];
+                        $movie->runtime = $detailMovie['runtime'];
+
+                        if($movie->genres && $movie->over_view && $movie->poster_path && $movie->backdrop_path && $movie->video_path && $movie->release_date) {
+                            $movie->save();
+                        }else continue;
                     }else continue;
                 }
                 $data[] = $movie;
@@ -157,5 +237,71 @@ class MovieController extends Controller
 
     public function getTrendingWeek() {
         return $this->handleGetMovie('https://api.themoviedb.org/3/trending/movie/week?language=vi');
+    }
+
+    public function getSearchMovie() {
+        $movieNames = Movie::all();
+        foreach($movieNames as $movieName) {
+            $data[] = $movieName['title'];
+        }
+        return response()->json($data);
+    }
+
+    public function getWeekday() {
+        $days = Weekday::all();
+
+        $today = Carbon::now();
+        $startOfWeek = $today->startOfWeek();
+
+        foreach($days as $day) {
+            $data[] = [
+                'id' => $day->id,
+                'name' => $day->name,
+                'date' => $startOfWeek->toDateString()
+            ];
+            $startOfWeek->addDay();
+        }
+        return response()->json($data);
+    }
+
+    public function getShowtime() {
+      // $weekDays = Weekday::all();
+      // foreach($weekDays as $weekDay) {
+      //   $showtime = Showtime::where('weekday_id', $weekDay->id)->first();
+      //   if($showtime) {
+      //     $data[] = [
+      //       'id' => $weekDay->id,
+      //       'data' => [
+      //         'id' => $showtime->id,
+      //         'screen_name' => $showtime->screens->first()->name,
+      //         'movie_name' => $showtime->movies->first()->title,
+      //         'weekday_name' => $showtime->weekdays->first()->name,
+      //         'start_time' => $showtime->timeframes->first()->start_time,
+      //         'duration' => $showtime->movies->first()->runtime
+      //       ]
+      //     ];
+      //   }else {
+      //     $data[] = [
+      //       'id' => $weekDay->id,
+      //       'data' => 'Chưa có lịch chiếu chi tiết'
+      //     ];
+      //   }
+      // }
+      $showtime = Showtime::where('weekday_id', 2)->get();
+      if($showtime->count() > 0) {
+        foreach($showtime as $item) {
+          $data[] = [
+            'id' => $item->id,
+            'screen_name' => $item->screens->first()->name,
+            'movie_name' => $item->movies->first()->title,
+            'weekday_name' => $item->weekdays->first()->name,
+            'start_time' => $item->timeframes->first()->start_time,
+            'duration' => $item->movies->first()->runtime
+          ];
+        }
+      }else {
+        $data = [];
+      }
+      return response()->json($data);
     }
 }

@@ -15,13 +15,14 @@ return new class extends Migration
             $table->increments('id');
             $table->string('name')->nullable();
             $table->string('email')->nullable();
-            $table->string('user_name')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->double('provider_id')->nullable();
             $table->string('provider')->nullable();
             $table->string('avatar')->nullable();
             $table->integer('group_id')->unsigned();
             $table->timestamps();
+
+            $table->foreign('group_id')->references('id')->on('groups');
         });
     }
 

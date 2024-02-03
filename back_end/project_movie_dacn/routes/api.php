@@ -38,13 +38,29 @@ Route::prefix('movies/')->name('movies.')->group(function() {
 
     // Get trendingWeek
     Route::get('getTrendingWeek', [MovieController::class, 'getTrendingWeek'])->name('get-treding-week');
+
+    //  Get movieSearch
+    Route::get('getSearchMovie', [MovieController::class, 'getSearchMovie'])->name('get-search-movie');
+
+    Route::get('getActor/{idMovie}', [MovieController::class, 'getActor'])->name('get-actor');
+
+
+    // Get weekdays
+    Route::get('getWeekday', [MovieController::class, 'getWeekday'])->name('get-week-day');
+
+    Route::get('getShowtime', [MovieController::class, 'getShowtime'])->name('get-show-time');
+
 });
 
 Route::prefix('users/')->name('users.')->group(function() {
     Route::get('/', [UserController::class, 'index'])->name('list');
 
-    Route::post('/create', [UserController::class, 'create'])->name('create');
+    Route::post('create', [UserController::class, 'create'])->name('create');
 
     Route::post('login', [UserController::class, 'login'])->name('login');
+
+    Route::post('verify-email/{email}', [UserController::class, 'verifyEmail'])->name('verify-email');
+
+    Route::put('change-pass', [UserController::class, 'changePass'])->name('change-pass');
 
 });

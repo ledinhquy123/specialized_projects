@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -68,6 +69,40 @@ class UserController extends Controller
             ]);
         }
 
+    }
+
+    public function verifyEmail($email) {
+        $user = User::where('email', $email)->first();
+        if($user) {
+            $response = [
+                'status' => 'found'
+            ];
+        }else {
+            $response = [
+                'status' => 'not found'
+            ];
+        }
+        return response()->json($response);
+    }
+
+    public function changePass(Request $request) {
+        $email = $request->email;
+        $password = $request->password;
+
+        if($email && $password) {
+            $user = User::where('email', $email)->first();
+            $user->password = Hash::make($password);
+            $user->save();
+
+            $response = [
+                'status' => 'success'
+            ];
+        }else {
+            $response = [
+                'status' => 'failed'
+            ];
+        }
+        return response()->json($response);
     }
 
 }

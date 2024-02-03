@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('showtimes', function (Blueprint $table) {
+        Schema::create('screens', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('movie_id')->unsigned();
-            $table->dateTime('start_time')->nullable();
-            $table->dateTime('end_time')->nullable();
+            $table->string('name')->nullable();
 
             $table->timestamps();
-
-            $table->foreign('movie_id')->references('id')->on('movies');
         });
     }
 
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('showtimes');
+        Schema::dropIfExists('screens');
     }
 };

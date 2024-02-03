@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:app_movie/constant/colors.dart';
+import 'package:app_movie/services/api.dart';
 import 'package:app_movie/utils/button_back.dart';
+import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/screens/forgot_password_screen.dart';
 import 'package:app_movie/views/widgets/custom_button.dart';
 
@@ -19,8 +21,9 @@ class VerifyEmailScreen extends StatefulWidget {
 
 class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   GlobalKey<FormState> key = GlobalKey<FormState>();
+
+  TextEditingController emailController = TextEditingController();
   bool checkEmail = false;
-  String inpEmail = '';
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +44,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
             ),
             child: Stack(
               children: [
-                showButtonBack(context),
+                showButtonBack(context, primaryMain2, primaryMain1, Icons.arrow_back, 64, 0),
                 Form(
                   key: key,
                   child: Column(
@@ -130,7 +133,6 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                           setState(() {
                             String emailRegex = r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$';
                             checkEmail = RegExp(emailRegex).hasMatch(value);
-                            inpEmail = value;
                           });
                         },
                         validator: (value) {
@@ -143,6 +145,8 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                           }
                           return null;
                         },
+
+                        controller: emailController,
                       ),
                       const SizedBox(height: 32),      
                 
@@ -156,20 +160,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                         ),
                         onTap: () {
                           if(key.currentState!.validate()) {
-                            Random random = Random();
-                            // Tạo số ngẫu nhiên từ 10^(3) đến 10^4 - 1
-                            int randomNumber = random.nextInt((pow(10, 4) - pow(10, 3)).toInt()) + pow(10, 3).toInt();
-
-                            sendEmail(inpEmail, randomNumber);
-                            Navigator.push(
-                              context, 
-                              MaterialPageRoute(
-                                builder: (context) => ForgotPassWordScreen(
-                                  inpEmail: inpEmail, 
-                                  code: randomNumber.toString()
-                                )
-                              )
-                            );
+                            verifyEmail();
                           }
                         },
                       ),
@@ -183,13 +174,40 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       ),
     );
   }
-}
-Future<void> sendEmail(String email, int randomNumber) async {
-  try {
-    EmailSender emailSender = EmailSender();
-    await emailSender.sendOtp(email, randomNumber);
-    print('email was sent');
-  } catch (error) {
-    print('Error: $error');
+
+  Future<void> sendEmail(String email, int randomNumber) async {
+    try {
+      EmailSender emailSender = EmailSender();
+      await emailSender.sendOtp(email, randomNumber);
+      // ignore: use_build_context_synchronously
+      showSnackbar(context, 'Mã gửi về email của bạn', Colors.green);
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
+  Future<void> verifyEmail() async {
+    Random random = Random();
+    // Tạo số ngẫu nhiên từ 10^(3) đến 10^4 - 1
+    int randomNumber = random.nextInt((pow(10, 4) - pow(10, 3)).toInt()) + pow(10, 3).toInt();
+
+    final check = await ApiServices.verifyEmail(emailController.text);
+    if(check) {
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context, 
+        MaterialPageRoute(
+          builder: (context) => ForgotPassWordScreen(
+            inpEmail: emailController.text, 
+            code: randomNumber.toString()
+          )
+        )
+      );
+      
+      sendEmail(emailController.text, randomNumber);
+    }else {
+      // ignore: use_build_context_synchronously
+      showSnackbar(context, 'Email không hợp lệ', Colors.red);
+    }
   }
 }

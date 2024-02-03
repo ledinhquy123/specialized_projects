@@ -47,7 +47,7 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
             child: Stack(
               children: [
-                showButtonBack(context),
+                showButtonBack(context, primaryMain2, primaryMain1, Icons.arrow_back, 64, 0),
                 Form(
                   key: key,
                   child: Column(

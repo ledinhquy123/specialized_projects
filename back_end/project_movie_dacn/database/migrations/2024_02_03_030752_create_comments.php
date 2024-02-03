@@ -11,20 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tickets', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('movie_id')->unsigned();
-            $table->integer('screen_id')->unsigned();
-            $table->integer('seat_id')->unsigned();
+            $table->text('content')->nullable();
             $table->integer('user_id')->unsigned();
-            $table->double('total_price')->nullable();
-
+            $table->string('id_movie');
             $table->timestamps();
-
-            $table->foreign('movie_id')->references('id')->on('movies');
-            $table->foreign('screen_id')->references('id')->on('screens');
-            $table->foreign('seat_id')->references('id')->on('seats');
+            
             $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('id_movie')->references('id_movie')->on('movies');
         });
     }
 
@@ -33,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tickets');
+        Schema::dropIfExists('comments');
     }
 };

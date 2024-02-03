@@ -38,18 +38,19 @@ class CustomButton extends StatelessWidget {
           ),
           border: Border.all(
             width: 1,
-            color: Colors.white
+            color: outline
           ),
           boxShadow: const [
             BoxShadow(
               blurRadius: 4,
               offset: Offset(2, 1),
-              color: Colors.white
+              color: button1
             )
           ]
         ),
         child: Text(
           text!,
+          textAlign: TextAlign.center,
           style: style
         ),
       ),

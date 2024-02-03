@@ -42,7 +42,7 @@ class _ForgotPassWordScreenState extends State<ForgotPassWordScreen> {
             ),
             child: Stack(
               children: [
-                showButtonBack(context),
+                showButtonBack(context, primaryMain2, primaryMain1, Icons.arrow_back, 64, 0),
 
                 Form(
                   key: key,
@@ -61,7 +61,7 @@ class _ForgotPassWordScreenState extends State<ForgotPassWordScreen> {
                       const SizedBox(height: 16),
                 
                       Text(
-                        "Mã xác nhận đã được gửi về\n ${widget.inpEmail!.substring(0, 3)} ****@gmail.com",
+                        'Mã xác nhận đã được gửi về\n ${widget.inpEmail!.substring(0, 3)} ****@gmail.com',
                         softWrap: true,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -133,7 +133,9 @@ class _ForgotPassWordScreenState extends State<ForgotPassWordScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>const CreateNewPasswordScreen()
+                                builder: (context) => CreateNewPasswordScreen(
+                                  inpEmail: widget.inpEmail
+                                )
                               )
                             );
                           }

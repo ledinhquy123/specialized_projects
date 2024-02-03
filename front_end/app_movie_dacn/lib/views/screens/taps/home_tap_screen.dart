@@ -1,10 +1,10 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/api.dart';
+import 'package:app_movie/views/screens/home_screen.dart';
+import 'package:app_movie/views/screens/detail_movie_screen.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
+// ignore: must_be_immutable
 class HomeTapScreen extends StatefulWidget {
   const HomeTapScreen({super.key});
 
@@ -18,18 +18,13 @@ class _HomeTapScreenState extends State<HomeTapScreen> {
   List<dynamic> nowPlayingList = [];
   List<dynamic> upComingList = [];
 
-  bool isLoadingSlider = false;
-  bool isLoadingPopular = false;
-  bool isLoadingNowPlaying = false;
-  bool isLoadingUpComing = false;
-
   @override
   void initState() {
     super.initState();
-    getMovieTrending();
-    getMoviePopular();
-    getMovieNowPlaying();
-    getMovieUpComing();
+    trendingList = HomeScreen.trendingList;
+    popularList = HomeScreen.popularList;
+    nowPlayingList = HomeScreen.nowPlayingList;
+    upComingList = HomeScreen.upComingList;
   }
 
   @override
@@ -69,22 +64,19 @@ class _HomeTapScreenState extends State<HomeTapScreen> {
                 Container(
                   height: 400,
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Visibility(
-                    visible: isLoadingSlider,
-                    replacement: const Center(child: CircularProgressIndicator()),
-                    child: CarouselSlider.builder(
-                      itemCount: trendingList.length, 
-                      itemBuilder: (context, index, realIndex) {
-                        return builImage(trendingList[index][0]['poster_path']);
-                      }, 
-                      options: CarouselOptions(
-                        height: 400,
-                        autoPlay: true,
-                        enableInfiniteScroll: true,
-                        autoPlayAnimationDuration: const Duration(seconds: 2),
-                        enlargeCenterPage: true, // quay lại mục đầu tiên
-                      )
-                    ),
+                  child: CarouselSlider.builder(
+                    itemCount: trendingList.length, 
+                    itemBuilder: (context, index, realIndex) {
+                      // return Text(trendingList[index].toString());
+                      return builImage(trendingList[index]['poster_path']);
+                    }, 
+                    options: CarouselOptions(
+                      height: 400,
+                      autoPlay: true,
+                      enableInfiniteScroll: true,
+                      autoPlayAnimationDuration: const Duration(seconds: 2),
+                      enlargeCenterPage: true, // quay lại mục đầu tiên
+                    )
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -107,22 +99,31 @@ class _HomeTapScreenState extends State<HomeTapScreen> {
 
                 SizedBox(
                   height: 160,
-                  child: Visibility(
-                    visible: isLoadingPopular,
-                    replacement: const Center(child: CircularProgressIndicator()),
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: popularList.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: InkWell(
-                            onTap: () {},
-                            child: builImage(popularList[index][0]['poster_path'])
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: popularList.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context, 
+                              MaterialPageRoute(
+                                builder: (context) => DeatailMovieScreen(
+                                  id: popularList[index]['id_movie']
+                                )
+                              )
+                            );
+                          },
+                          child: SizedBox(
+                            width: 120,
+                            child: builImage(popularList[index]['poster_path'])
+                            // child: Text(popularList[index].toString()),
                           )
-                        );
-                      },
-                    )
+                        )
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -137,7 +138,7 @@ class _HomeTapScreenState extends State<HomeTapScreen> {
                           color: Colors.white,
                           fontWeight: FontWeight.w600
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -145,22 +146,31 @@ class _HomeTapScreenState extends State<HomeTapScreen> {
 
                 SizedBox(
                   height: 160,
-                  child: Visibility(
-                    visible: isLoadingNowPlaying,
-                    replacement: const Center(child: CircularProgressIndicator()),
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: nowPlayingList.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: InkWell(
-                            onTap: () {},
-                            child: builImage(nowPlayingList[index][0]['poster_path'])
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: nowPlayingList.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context, 
+                              MaterialPageRoute(
+                                builder: (context) => DeatailMovieScreen(
+                                  id: nowPlayingList[index]['id_movie']
+                                )
+                              )
+                            );
+                          },
+                          child: SizedBox(
+                            width: 120,
+                            child: builImage(nowPlayingList[index]['poster_path'])
+                            // child: Text(nowPlayingList[index].toString()),
                           )
-                        );
-                      },
-                    )
+                        )
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -175,7 +185,7 @@ class _HomeTapScreenState extends State<HomeTapScreen> {
                           color: Colors.white,
                           fontWeight: FontWeight.w600
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -183,22 +193,31 @@ class _HomeTapScreenState extends State<HomeTapScreen> {
 
                 SizedBox(
                   height: 160,
-                  child: Visibility(
-                    visible: isLoadingUpComing,
-                    replacement: const Center(child: CircularProgressIndicator()),
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: upComingList.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: InkWell(
-                            onTap: () {},
-                            child: builImage(upComingList[index][0]['poster_path'])
-                          )
-                        );
-                      },
-                    )
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: upComingList.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.push(
+                              context, 
+                              MaterialPageRoute(
+                                builder: (context) => DeatailMovieScreen(
+                                  id: upComingList[index]['id_movie']
+                                )
+                              )
+                            );
+                          },
+                          child: SizedBox(
+                            width: 120,
+                            child: builImage(upComingList[index]['poster_path'])
+                            // child: Text(upComingList[index].toString()),
+                          ) 
+                        )
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -216,62 +235,18 @@ class _HomeTapScreenState extends State<HomeTapScreen> {
       child: Image.network(
         urlImage,
         fit: BoxFit.cover,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) {
+            return child; // Ảnh đã được tải thành công, hiển thị nó
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(
+                color: primaryMain1,
+              ),
+            );
+          }
+        },
       ),
     );
-  }
-
-  Future<void> getMovieTrending() async {
-    setState(() {
-      isLoadingSlider = false;
-    });
-    final response = await ApiServices.getMovieTrending();
-    if(response.statusCode == 200) {
-      setState(() {
-        trendingList = jsonDecode(response.body) as List<dynamic>;
-        isLoadingSlider = true;
-      });
-    }
-  }
-
-  Future<void> getMoviePopular() async {
-    setState(() {
-      isLoadingPopular = false;
-    });
-    final response = await ApiServices.getMoviePopular();
-
-    if(response.statusCode == 200) {
-      setState(() {
-        popularList = jsonDecode(response.body) as List<dynamic>;
-        isLoadingPopular = true;
-      });
-    }
-  }
-
-  Future<void> getMovieNowPlaying() async {
-    setState(() {
-      isLoadingNowPlaying = false;
-    });
-    final response = await ApiServices.getMovieNowPlaying();
-
-    if(response.statusCode == 200) {
-      setState(() {
-        nowPlayingList = jsonDecode(response.body) as List<dynamic>;
-        isLoadingNowPlaying = true;
-      });
-    }
-  }
-
-  Future<void> getMovieUpComing() async {
-    setState(() {
-      isLoadingUpComing = false;
-    });
-    final response = await ApiServices.getMovieUpComing();
-
-    if(response.statusCode == 200) {
-      setState(() {
-        upComingList = jsonDecode(response.body) as List<dynamic>;
-        isLoadingUpComing = true;
-      });
-    }
   }
 }

@@ -19,6 +19,7 @@ class CustomTextFormField extends StatelessWidget {
   InputBorder? errorBorder;
   TextStyle? errorStyle;
   InputBorder? focusedErrorBorder;
+  void Function()? onEditingComplete;
 
   CustomTextFormField({
     super.key,
@@ -39,6 +40,7 @@ class CustomTextFormField extends StatelessWidget {
     this.errorBorder,
     this.errorStyle,
     this.focusedErrorBorder,
+    this.onEditingComplete,
   });
 
   @override
@@ -50,6 +52,7 @@ class CustomTextFormField extends StatelessWidget {
       validator: validator,
       style: style,
       onChanged: onChanged,
+      onEditingComplete: onEditingComplete,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: hintStyle,

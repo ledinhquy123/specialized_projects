@@ -1,13 +1,21 @@
 import 'package:app_movie/constant/colors.dart';
+import 'package:app_movie/services/api.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_dialog.dart';
+import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/widgets/custom_button.dart';
 import 'package:app_movie/views/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 
+// ignore: must_be_immutable
 class CreateNewPasswordScreen extends StatefulWidget {
-  const CreateNewPasswordScreen({super.key});
+  String? inpEmail;
+
+  CreateNewPasswordScreen({
+    super.key,
+    this.inpEmail
+  });
 
   @override
   State<CreateNewPasswordScreen> createState() => _CreateNewPasswordScreenState();
@@ -15,6 +23,7 @@ class CreateNewPasswordScreen extends StatefulWidget {
 
 class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
   GlobalKey<FormState> key = GlobalKey<FormState>();
+  TextEditingController passwordControler = TextEditingController();
 
   bool passObscure = true;
   bool againPassObscure = true;
@@ -42,7 +51,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
             ),
             child: Stack(
               children: [
-                showButtonBack(context),
+                showButtonBack(context, primaryMain2, primaryMain1, Icons.arrow_back, 64, 0),
                 Form(
                   key: key,
                   child: Column(
@@ -72,6 +81,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       const SizedBox(height: 8),
                 
                       CustomTextFormField(
+                        controller: passwordControler,
                         hintText: 'Nhập mật khẩu mới',
                         hintStyle: const TextStyle(
                           color: outline,
@@ -360,11 +370,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                         ),
                         onTap: () {
                           if (key.currentState!.validate()){
-                            // openDialog(context);
-                            openDialog(
-                              context, 
-                              'Thành công', 
-                              'Tài khoản của bạn đã được đổi mật khẩu thành công');
+                            changePass();
                           }
                         }
                       ),
@@ -378,5 +384,25 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> changePass() async {
+    final body = {
+      'email': widget.inpEmail,
+      'password': passwordControler.text
+    };
+    bool response = await ApiServices.changePass(body);
+    print(response);
+    if(response) {
+      // ignore: use_build_context_synchronously
+      openDialog(
+        context, 
+        'Thành công', 
+        'Tài khoản của bạn đã được đổi mật khẩu thành công'
+      );
+    }else {
+      // ignore: use_build_context_synchronously
+      showSnackbar(context, 'Đổi mật khẩu thất bại', Colors.red);
+    }
   }
 }
