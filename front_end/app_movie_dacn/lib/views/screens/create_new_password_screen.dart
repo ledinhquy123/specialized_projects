@@ -1,5 +1,5 @@
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/api.dart';
+import 'package:app_movie/services/users_api.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_dialog.dart';
 import 'package:app_movie/utils/show_snackbar.dart';
@@ -391,7 +391,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
       'email': widget.inpEmail,
       'password': passwordControler.text
     };
-    bool response = await ApiServices.changePass(body);
+    bool response = await UserApi.changePass(body);
     print(response);
     if(response) {
       // ignore: use_build_context_synchronously

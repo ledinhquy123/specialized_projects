@@ -48,7 +48,7 @@ Route::prefix('movies/')->name('movies.')->group(function() {
     // Get weekdays
     Route::get('getWeekday', [MovieController::class, 'getWeekday'])->name('get-week-day');
 
-    Route::get('getShowtime', [MovieController::class, 'getShowtime'])->name('get-show-time');
+    Route::get('getShowtime/{id}', [MovieController::class, 'getShowtime'])->name('get-show-time');
 
 });
 

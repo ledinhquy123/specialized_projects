@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/api.dart';
+import 'package:app_movie/services/users_api.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/screens/forgot_password_screen.dart';
@@ -191,7 +191,7 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
     // Tạo số ngẫu nhiên từ 10^(3) đến 10^4 - 1
     int randomNumber = random.nextInt((pow(10, 4) - pow(10, 3)).toInt()) + pow(10, 3).toInt();
 
-    final check = await ApiServices.verifyEmail(emailController.text);
+    final check = await UserApi.verifyEmail(emailController.text);
     if(check) {
       // ignore: use_build_context_synchronously
       Navigator.push(

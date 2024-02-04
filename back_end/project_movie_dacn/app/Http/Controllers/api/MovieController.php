@@ -8,6 +8,7 @@ use App\Models\Movie;
 use App\Models\Showtime;
 use App\Models\Weekday;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Support\Facades\Http;
 
 class MovieController extends Controller
@@ -264,43 +265,33 @@ class MovieController extends Controller
         return response()->json($data);
     }
 
-    public function getShowtime() {
-      // $weekDays = Weekday::all();
-      // foreach($weekDays as $weekDay) {
-      //   $showtime = Showtime::where('weekday_id', $weekDay->id)->first();
-      //   if($showtime) {
-      //     $data[] = [
-      //       'id' => $weekDay->id,
-      //       'data' => [
-      //         'id' => $showtime->id,
-      //         'screen_name' => $showtime->screens->first()->name,
-      //         'movie_name' => $showtime->movies->first()->title,
-      //         'weekday_name' => $showtime->weekdays->first()->name,
-      //         'start_time' => $showtime->timeframes->first()->start_time,
-      //         'duration' => $showtime->movies->first()->runtime
-      //       ]
-      //     ];
-      //   }else {
-      //     $data[] = [
-      //       'id' => $weekDay->id,
-      //       'data' => 'Chưa có lịch chiếu chi tiết'
-      //     ];
-      //   }
-      // }
-      $showtime = Showtime::where('weekday_id', 2)->get();
-      if($showtime->count() > 0) {
+    public function getShowtime($id) {
+        if(!$id) {
+            $showtime = Showtime::all();
+        }else {
+            $showtime = Showtime::where('weekday_id', $id)->get();
+        }
+        if($showtime->count() > 0) {
         foreach($showtime as $item) {
-          $data[] = [
-            'id' => $item->id,
-            'screen_name' => $item->screens->first()->name,
-            'movie_name' => $item->movies->first()->title,
-            'weekday_name' => $item->weekdays->first()->name,
-            'start_time' => $item->timeframes->first()->start_time,
-            'duration' => $item->movies->first()->runtime
-          ];
+            $time = $item->timeframes->first()->start_time;
+            $hour = Carbon::parse($time)->hour < 10 ? '0'.Carbon::parse($time)->hour : Carbon::parse($time)->hour;
+            $minute = Carbon::parse($time)->minute < 10 ? '0'.Carbon::parse($time)->minute : Carbon::parse($time)->minute;
+            $start_time = $hour . ':' . $minute;
+            $data[$item->id_movie][] = [
+                'id' => $item->id,
+                'screen_name' => $item->screens->first()->name,
+                'movie_name' => $item->movies->first()->title,
+                'movie_poster' => $item->movies->first()->poster_path,
+                'movie_genres' => $item->movies->first()->genres,
+                'movie_country' => $item->movies->first()->country,
+                'weekday_name' => $item->weekdays->first()->name,
+                'start_time' => $start_time,
+                'timeframe_id' => $item->timeframe_id,
+                'duration' => $item->movies->first()->runtime
+            ];
         }
       }else {
-        $data = [];
+        $data['null'] = [];
       }
       return response()->json($data);
     }

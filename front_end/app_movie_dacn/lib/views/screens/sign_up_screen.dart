@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/api.dart';
+import 'package:app_movie/services/users_api.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_dialog.dart';
 import 'package:app_movie/utils/show_snackbar.dart';
@@ -550,7 +550,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       'email': emailController.text,
       'password': passwordController.text
     };
-    final response = await ApiServices.signUpUser(body);
+    final response = await UserApi.signUpUser(body);
 
     if(response.statusCode == 200) {
       final json = jsonDecode(response.body);

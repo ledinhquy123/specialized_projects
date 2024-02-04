@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/api.dart';
+import 'package:app_movie/services/movies_api.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/views/screens/home_screen.dart';
 import 'package:app_movie/views/widgets/custom_button.dart';
@@ -296,7 +295,7 @@ class _DeatailMovieScreenState extends State<DeatailMovieScreen> {
   }
 
   Future<List<dynamic>> getActor() async {
-    final response = await ApiServices.getActors(widget.id);
+    final response = await MovieApi.getActors(widget.id);
     if(response.statusCode == 200) {
       return jsonDecode(response.body) as List<dynamic>;
     }

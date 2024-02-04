@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/api.dart';
+import 'package:app_movie/services/users_api.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/screens/home_screen.dart';
@@ -436,7 +436,7 @@ class _SignInScreenState extends State<SignInScreen> {
       'password': passwordController.text
     };
 
-    final response = await ApiServices.signInUser(body);
+    final response = await UserApi.signInUser(body);
 
     if(response.statusCode == 200) {
       final json = jsonDecode(response.body);
