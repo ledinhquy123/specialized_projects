@@ -12,7 +12,10 @@ class HomeTapScreen extends StatefulWidget {
   State<HomeTapScreen> createState() => _HomeTapScreenState();
 }
 
-class _HomeTapScreenState extends State<HomeTapScreen> {
+class _HomeTapScreenState extends State<HomeTapScreen> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   List<dynamic> trendingList = [];
   List<dynamic> popularList = [];
   List<dynamic> nowPlayingList = [];
@@ -29,6 +32,7 @@ class _HomeTapScreenState extends State<HomeTapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Material(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -249,4 +253,5 @@ class _HomeTapScreenState extends State<HomeTapScreen> {
       ),
     );
   }
+
 }

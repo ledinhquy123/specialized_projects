@@ -29,8 +29,6 @@ class CustomSearchMovie extends StatelessWidget {
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
-        width: MediaQuery.of(context).size.width - 48,
-        height: MediaQuery.of(context).size.height / 7,
         decoration: BoxDecoration(
           gradient: index % 2 == 0 
           ? LinearGradient(
@@ -119,35 +117,24 @@ class CustomSearchMovie extends StatelessWidget {
                       ],
                     ),
                 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 120,
-                          child: Text(
-                            item['genres'],
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                              color: outline,
-                              fontSize: 10
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 90,
-                          child: Text(
-                              item['country'],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                                color: outline,
-                                fontSize: 10
-                              ),
-                            ),
-                        ),
-                      ],
+                    Text(
+                      item['genres'],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                        color: outline,
+                        fontSize: 10
+                      ),
                     ),
+                    Text(
+                        item['country'],
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                          color: outline,
+                          fontSize: 10
+                        ),
+                      ),
                 
                     Text(
                       item['over_view'],

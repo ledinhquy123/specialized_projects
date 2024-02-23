@@ -361,8 +361,6 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                       const SizedBox(height: 32),
                       
                       CustomButton(
-                        width: MediaQuery.of(context).size.width / 1.2,
-                        height: MediaQuery.of(context).size.height / 20,
                         text: 'Hoàn thành',
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           color: Colors.white,
@@ -404,5 +402,11 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
       // ignore: use_build_context_synchronously
       showSnackbar(context, 'Đổi mật khẩu thất bại', Colors.red);
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    passwordControler.dispose();
   }
 }

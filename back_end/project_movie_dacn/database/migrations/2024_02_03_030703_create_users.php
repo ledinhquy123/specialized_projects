@@ -19,6 +19,7 @@ return new class extends Migration
             $table->double('provider_id')->nullable();
             $table->string('provider')->nullable();
             $table->string('avatar')->nullable();
+            $table->string('access_token')->nullable();
             $table->integer('group_id')->unsigned();
             $table->timestamps();
 

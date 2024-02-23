@@ -47,8 +47,6 @@ void openDialog(BuildContext context, String title, String content) {
 
             CustomButton(
               text: 'ok',
-              width: MediaQuery.of(context).size.width / 6,
-              height: MediaQuery.of(context).size.height / 24,
               style: const TextStyle(color: Colors.white),
               onTap: () {
                 Navigator.of(context).popUntil((route) => route.isFirst);

@@ -151,8 +151,6 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                       const SizedBox(height: 32),      
                 
                       CustomButton(
-                        width: MediaQuery.of(context).size.width / 1.2,
-                        height: MediaQuery.of(context).size.height / 20,
                         text: 'Xác Nhận',
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           color: Colors.white,
@@ -209,5 +207,11 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
       // ignore: use_build_context_synchronously
       showSnackbar(context, 'Email không hợp lệ', Colors.red);
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    emailController.dispose();
   }
 }

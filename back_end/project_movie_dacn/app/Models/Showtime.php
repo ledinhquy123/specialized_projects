@@ -11,26 +11,26 @@ class Showtime extends Model
     protected $table = 'showtimes';
 
     public function screens() {
-        return $this->hasMany( 
-            Screen::class, 'id', 'screen_id'
+        return $this->belongsTo( 
+            Screen::class, 'screen_id', 'id'
         );
     }
 
     public function movies() {
-        return $this->hasMany(
+        return $this->belongsTo(
             Movie::class, 'id_movie', 'id_movie'
         );
     }
 
     public function weekdays() {
-        return $this->hasMany(
-            Weekday::class, 'id','weekday_id'
+        return $this->belongsTo(
+            Weekday::class, 'weekday_id', 'id'
         );
     }
 
     public function timeframes() {
-        return $this->hasMany(
-            Timeframe::class, 'id', 'timeframe_id'
+        return $this->belongsTo(
+            Timeframe::class, 'timeframe_id', 'id'
         );
     }
 }

@@ -70,43 +70,40 @@ class _ForgotPassWordScreenState extends State<ForgotPassWordScreen> {
                       ),
                       const SizedBox(height: 16),
                 
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: PinCodeTextField(
-                          keyboardType: TextInputType.number,
-                          appContext: context, 
-                          length: 4,
-                          onChanged: (value) {
-                            setState(() {
-                              inpCode = value;
-                            });
-                          },
-                          validator: (value) {
-                            if (value!.isEmpty) {
-                              return 'Pin code không được rỗng';
-                            }
-                            if (widget.code != inpCode) {
-                              return 'Pin code không hợp lệ';
-                            }
-                            return null;
-                          },
+                      PinCodeTextField(
+                        keyboardType: TextInputType.number,
+                        appContext: context, 
+                        length: 4,
+                        onChanged: (value) {
+                          setState(() {
+                            inpCode = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return 'Pin code không được rỗng';
+                          }
+                          if (widget.code != inpCode) {
+                            return 'Pin code không hợp lệ';
+                          }
+                          return null;
+                        },
 
-                          animationType: AnimationType.fade,
-                          animationDuration: const Duration(milliseconds: 300),
-                          textStyle: const TextStyle(color: Colors.white),
-                          pinTheme: PinTheme(
-                            shape: PinCodeFieldShape.box,
-                            borderRadius: BorderRadius.circular(10),
-                            borderWidth: .5,
-                            fieldWidth: 75, 
-                            fieldHeight: 40,
-                            selectedColor: Colors.white,
-                            selectedBorderWidth: 2,
-                            activeColor: outline,
-                            inactiveColor: outline,
-                          ),
-                          
+                        animationType: AnimationType.fade,
+                        animationDuration: const Duration(milliseconds: 300),
+                        textStyle: const TextStyle(color: Colors.white),
+                        pinTheme: PinTheme(
+                          shape: PinCodeFieldShape.box,
+                          borderRadius: BorderRadius.circular(10),
+                          borderWidth: .5,
+                          fieldWidth: 75, 
+                          fieldHeight: 40,
+                          selectedColor: Colors.white,
+                          selectedBorderWidth: 2,
+                          activeColor: outline,
+                          inactiveColor: outline,
                         ),
+                        
                       ),
                       const SizedBox(height: 16),
                      
@@ -121,8 +118,6 @@ class _ForgotPassWordScreenState extends State<ForgotPassWordScreen> {
                       const SizedBox(height: 32),
                 
                       CustomButton(
-                        width: MediaQuery.of(context).size.width / 1.2,
-                        height: MediaQuery.of(context).size.height / 20,
                         text: 'Xác Nhận',
                         style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                           color: Colors.white,

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('seats', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name')->nullable();
-            $table->tinyInteger('status')->default(0);
+            $table->json('status')->default(json_encode([]));
             $table->double('price')->default(60.0);
             $table->integer('screen_id')->unsigned();
             $table->timestamps();

@@ -3,16 +3,12 @@ import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class CustomButton extends StatelessWidget {
-  double? width;
-  double? height;
   String? text;
   void Function()? onTap;
   TextStyle? style;
 
   CustomButton({
     super.key,
-    this.width,
-    this.height,
     this.text,
     this.onTap,
     this.style,
@@ -23,10 +19,8 @@ class CustomButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        width: width,
-        height: height,
         alignment: Alignment.center,
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [ button1, button2 ],
@@ -34,7 +28,7 @@ class CustomButton extends StatelessWidget {
             end: Alignment.centerRight,
           ),
           borderRadius: const BorderRadiusDirectional.all(
-            Radius.circular(30)
+            Radius.circular(16)
           ),
           border: Border.all(
             width: 1,

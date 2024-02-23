@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:app_movie/constant/colors.dart';
 import 'package:app_movie/services/movies_api.dart';
+import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/screens/home_screen.dart';
+import 'package:app_movie/views/widgets/custom_showtime.dart';
+import 'package:app_movie/views/widgets/custom_weekday.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
-import 'package:intl/intl.dart';
 
 class ShowtimeTapScreen extends StatefulWidget {
   const ShowtimeTapScreen({super.key});
@@ -14,11 +16,15 @@ class ShowtimeTapScreen extends StatefulWidget {
   State<ShowtimeTapScreen> createState() => _ShowtimeTapScreenState();
 }
 
-class _ShowtimeTapScreenState extends State<ShowtimeTapScreen> {
+class _ShowtimeTapScreenState extends State<ShowtimeTapScreen> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   List<dynamic> weekdays = [];
   late Map<String, dynamic> showtimes;
   List<dynamic> keys = [];
 
+  Map<String, bool> selectWeekday = {};
   int currentIndex = 0;
 
   late Future<Map<String, dynamic>> dataShowtime;
@@ -27,11 +33,16 @@ class _ShowtimeTapScreenState extends State<ShowtimeTapScreen> {
   void initState() {
     super.initState();
     weekdays = HomeScreen.weekdayList;
+    print(weekdays);
+    
+    List<String> keys = weekdays.map((e) => e['id'].toString()).toList();
+    List<bool> values = List.generate(weekdays.length, (index) => false);
+    selectWeekday = Map.fromIterables(keys, values);
+
     dataShowtime = fetchShowtime(currentIndex.toString());
   }
 
   Future<Map<String, dynamic>> fetchShowtime(String weekdayId) async {
-    await getShowtime(weekdayId);
     showtimes = await getShowtime(weekdayId);
     keys = showtimes.keys.toList();
     return showtimes;
@@ -39,7 +50,7 @@ class _ShowtimeTapScreenState extends State<ShowtimeTapScreen> {
 
   @override
   Widget build(BuildContext context) {
-
+    super.build(context);
     return Material(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -77,13 +88,14 @@ class _ShowtimeTapScreenState extends State<ShowtimeTapScreen> {
                 Stack(
                   children: [
                     Image.asset(
-                    'assets/images/map.png',
-                    fit: BoxFit.cover,
+                      'assets/images/map.png',
+                      fit: BoxFit.cover,
                     ),
           
                     Positioned(
                       bottom: 16,
-                      left: 42,
+                      left: 0,
+                      right: 0,
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -126,15 +138,29 @@ class _ShowtimeTapScreenState extends State<ShowtimeTapScreen> {
                           scrollDirection: Axis.horizontal,
                           itemCount: weekdays.length,
                           itemBuilder: (context, index) {
+                            DateTime dateOfWeek = DateTime.parse(weekdays[index]['date']);
+                            DateTime now = DateTime.now().subtract(const Duration(days: 1));
                             return customWeekday(
+                              context,
                               weekdays[index], 
-                              () {
+                              dateOfWeek.isAfter(now) 
+                              ? () {
                                 setState(() {
                                   currentIndex = weekdays[index]['id'];
                                   dataShowtime = fetchShowtime(currentIndex.toString());
+                                  selectWeekday.forEach((key, value) {
+                                    selectWeekday[key] = false;
+                                    if(key == weekdays[index]['id'].toString()) {
+                                      selectWeekday[key] = !selectWeekday[key]!;
+                                    }
+                                  });
                                 });
-                              }, 
-                              false
+                              }
+                              : () {
+                                showSnackbar(context, 'Ngày chiếu không hợp lệ', Colors.red);
+                              }
+                              , 
+                              selectWeekday[weekdays[index]['id'].toString()]!
                             );
                           }
                         ),
@@ -181,66 +207,6 @@ class _ShowtimeTapScreenState extends State<ShowtimeTapScreen> {
               ]
             )
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget customWeekday(dynamic weekday, Function() onTap, bool checked) {
-    DateFormat dateFormat = DateFormat('yyy-MM-dd');
-    DateTime date = dateFormat.parse(weekday['date']);
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-        decoration: BoxDecoration(
-          gradient: !checked 
-          ? LinearGradient(
-            colors: [ 
-              const Color(0xFFD7F3F6).withOpacity(.6), 
-              const Color(0xFFF2F2F2)
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter
-          )
-          : LinearGradient(
-            colors: [ 
-              const Color(0xFFFED5B4), 
-              const Color(0xFFC94044).withOpacity(.46)
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter
-          ),
-          borderRadius: const BorderRadius.all(
-            Radius.circular(8)
-          )
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              weekday['name'],
-              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                color: !checked ? button1 : Colors.white,
-                fontWeight: FontWeight.w700
-              ),
-            ),
-            const SizedBox(height: 4),
-            Container(
-              height: 1,
-              width: 28,
-              color: button2.withOpacity(.42),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              date.day < 10 ? '0${date.day.toString()}' : date.day.toString(),
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                color: !checked ? button1 : Colors.white,
-                fontSize: 18
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -334,42 +300,15 @@ class _ShowtimeTapScreenState extends State<ShowtimeTapScreen> {
                   mainAxisSpacing: 8.0,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  children: showtime.map((e) => customShowTime(e)).toList(),
+                  children: showtime.map((e) => customShowTime(
+                    e, 
+                    context
+                  )).toList(),
                 ),
               ],
             ),
           )
         ],
-      ),
-    );
-  }
-
-  Widget customShowTime(dynamic e) {
-    return InkWell(
-      onTap: () {
-        print(e['timeframe_id']);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [ 
-              const Color(0xFFD7F3F6).withOpacity(.6), 
-              const Color(0xFFF2F2F2)
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter
-          ),
-          borderRadius: BorderRadius.circular(8)
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              e['start_time'],
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
       ),
     );
   }

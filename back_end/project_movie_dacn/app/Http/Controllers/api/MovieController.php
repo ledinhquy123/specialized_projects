@@ -4,11 +4,16 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Actor;
+use App\Models\Comment;
 use App\Models\Movie;
+use App\Models\Screen;
+use App\Models\Seat;
 use App\Models\Showtime;
+use App\Models\Ticket;
 use App\Models\Weekday;
 use Carbon\Carbon;
 use DateTime;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class MovieController extends Controller
@@ -103,7 +108,6 @@ class MovieController extends Controller
         $response = $response->json();
         $response = $response['results'];
         $genres = $this->getAllGenres();
-
 
         foreach($response as $item) {
             $movie = Movie::where('id_movie', $item['id'])->first();
@@ -265,6 +269,7 @@ class MovieController extends Controller
         return response()->json($data);
     }
 
+    // Follow weekday
     public function getShowtime($id) {
         if(!$id) {
             $showtime = Showtime::all();
@@ -273,26 +278,170 @@ class MovieController extends Controller
         }
         if($showtime->count() > 0) {
         foreach($showtime as $item) {
-            $time = $item->timeframes->first()->start_time;
+            $time = $item->timeframes->start_time;
             $hour = Carbon::parse($time)->hour < 10 ? '0'.Carbon::parse($time)->hour : Carbon::parse($time)->hour;
             $minute = Carbon::parse($time)->minute < 10 ? '0'.Carbon::parse($time)->minute : Carbon::parse($time)->minute;
             $start_time = $hour . ':' . $minute;
             $data[$item->id_movie][] = [
                 'id' => $item->id,
-                'screen_name' => $item->screens->first()->name,
-                'movie_name' => $item->movies->first()->title,
-                'movie_poster' => $item->movies->first()->poster_path,
-                'movie_genres' => $item->movies->first()->genres,
-                'movie_country' => $item->movies->first()->country,
-                'weekday_name' => $item->weekdays->first()->name,
+                'screen_id' => $item->screens->id,
+                'screen_name' => $item->screens->name,
+                'movie_name' => $item->movies->title,
+                'movie_id' =>$item->movies->id_movie,
+                'movie_poster' => $item->movies->poster_path,
+                'movie_genres' => $item->movies->genres,
+                'movie_country' => $item->movies->country,
+                'movie_vote' => $item->movies->vote_average,
+                'weekday_name' => $item->weekdays->name,
                 'start_time' => $start_time,
                 'timeframe_id' => $item->timeframe_id,
-                'duration' => $item->movies->first()->runtime
+                'duration' => $item->movies->runtime
             ];
         }
       }else {
         $data['null'] = [];
       }
       return response()->json($data);
+    }
+
+    // Follow weekday and idmovie
+    public function getShowtimeIdMovie($idWeekday, $idMovie) {
+        if($idWeekday == 0) {
+            $showtimes = Showtime::where('id_movie', $idMovie)->get();
+        }else {
+            $showtimes = Showtime::where('weekday_id', $idWeekday)
+            ->where('id_movie', $idMovie)->get();
+        }
+
+        foreach($showtimes as $showtime) {
+            $time = $showtime->timeframes->start_time;
+            $hour = Carbon::parse($time)->hour < 10 ? '0'.Carbon::parse($time)->hour : Carbon::parse($time)->hour;
+            $minute = Carbon::parse($time)->minute < 10 ? '0'.Carbon::parse($time)->minute : Carbon::parse($time)->minute;
+            $start_time = $hour . ':' . $minute;
+            $data[] = [
+                'id' => $showtime->id,
+                'screen_id' => $showtime->screens->id,
+                'screen_name' => $showtime->screens->name,
+                'movie_name' => $showtime->movies->title,
+                'movie_id' =>$showtime->movies->id_movie,
+                'movie_poster' => $showtime->movies->poster_path,
+                'movie_genres' => $showtime->movies->genres,
+                'movie_country' => $showtime->movies->country,
+                'movie_vote' => $showtime->movies->vote_average,
+                'weekday_name' => $showtime->weekdays->name,
+                'start_time' => $start_time,
+                'timeframe_id' => $showtime->timeframe_id,
+                'duration' => $showtime->movies->runtime
+            ];
+        }
+        return $data;
+    }
+
+    public function getSeats($screenId, $showtimeId) {
+        $screen = Screen::find($screenId);
+        $seats = $screen->seats;
+        foreach($seats as $seat) {
+            $status = json_decode($seat->status, true);
+            $data[] = [
+                'id' => $seat->id,
+                'name' => $seat->name,
+                'status' => in_array($showtimeId, array_keys($status)) 
+                    ? $status[$showtimeId] 
+                    : 0,
+                'price' => $seat->price,
+                'screen_id' => $seat->screen_id
+            ];
+        }
+        return response()->json($data);
+    }
+
+    public function getBill(Request $request) {
+        $response = $request->all();
+        $statusSeats = $response['data'];
+        foreach(array_keys($statusSeats) as $item) {
+            $seat = Seat::find($item);
+            if($statusSeats[$item] == 'true') {
+                $data[] = $seat->name;
+            }
+        }
+        return response()->json($data);
+    }
+
+    public function reservations(Request $request) {
+        $response = $request->all();
+        $showtime_id = $response['screen_id'];
+        $statusSeats = $response['data'];
+
+        foreach(array_keys($statusSeats) as $item) {
+            $seat = Seat::find($item);
+            if($statusSeats[$item] == 'true') {
+                $seat->status = json_encode([
+                    $showtime_id => 1
+                ]);
+                $seat->save();
+            }
+        }
+        return 'ok';
+    }
+
+    public function getMovieComments($idMovie) {
+        $comments = Comment::where('id_movie', $idMovie)->get();
+
+        if($comments->count() > 0) {
+            foreach($comments as $comment) {
+                $data[] = [
+                    "id" => $comment->id,
+                    "content" => $comment->content,
+                    "user_id" => $comment->user_id,
+                    "user_name" => $comment->user->name,
+                    "user_avatar" => $comment->user->avatar,
+                    "id_movie" => $comment->id_movie,
+                    "created_at" => Carbon::parse($comment->created_at)->format('H:i d/m/Y')
+                ];
+            }
+            return response()->json([
+                'comments' => $data
+            ]);
+        } 
+        return response()->json([
+            'comments' => []
+        ]);
+    }
+
+    public function createMovieComment(Request $request) {
+        $idMovie = $request->idMovie;
+        $idUser = $request->idUser;
+        $content = $request->content;
+
+        if($idMovie && $idUser && $content) {
+            $comment = new Comment;
+            $comment->content = $content;
+            $comment->user_id = $idUser;
+            $comment->id_movie = $idMovie;
+            $comment->save();
+
+            return response()->json([
+                'create-comment' => '1'
+            ]);
+        }   
+        return response()->json([
+            'create-comment' => '0'
+        ]);
+    }
+
+    public function checkUserComment(Request $request) {
+        $userId = $request->userId;
+        $movieId = $request->movieId;
+        $comment = Ticket::where('user_id', $userId) 
+        ->where('movie_id', $movieId)->first();
+
+        if($comment) {
+            return response()->json([
+                'check' => '1'
+            ]);
+        }
+        return response()->json([
+            'check' => '0'
+        ]);
     }
 }

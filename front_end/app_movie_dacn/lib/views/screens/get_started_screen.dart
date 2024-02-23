@@ -11,7 +11,7 @@ class GetStartedScreen extends StatelessWidget {
     return Material(
       child: Stack(
         children: [
-          Container(
+          SizedBox(
             width: MediaQuery.of(context).size.width,
             height: double.infinity,
             child: Image.asset(
@@ -33,18 +33,20 @@ class GetStartedScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Image.asset('assets/images/logo.png'),
-                CustomButton(
+                SizedBox(
                   width: MediaQuery.of(context).size.width / 1.2,
                   height: MediaQuery.of(context).size.height / 20,
-                  text: 'BẮT ĐẦU',
-                  onTap: () => Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (context) => const SignInScreen())
+                  child: CustomButton(
+                    text: 'BẮT ĐẦU',
+                    onTap: () => Navigator.push(
+                      context, 
+                      MaterialPageRoute(builder: (context) => const SignInScreen())
+                    ),
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      color: Colors.white,
+                      fontSize: 16
+                    )
                   ),
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: Colors.white,
-                    fontSize: 16
-                  )
                 ),
               ],
             ),

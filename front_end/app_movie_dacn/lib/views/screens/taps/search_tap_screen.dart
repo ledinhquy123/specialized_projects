@@ -16,7 +16,9 @@ class SearchTapScreen extends StatefulWidget {
   State<SearchTapScreen> createState() => _SearchTapScreenState();
 }
 
-class _SearchTapScreenState extends State<SearchTapScreen> {
+class _SearchTapScreenState extends State<SearchTapScreen> with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
 
   TextEditingController searchController = TextEditingController();
   Fuzzy<dynamic> movies = Fuzzy(HomeScreen.movieNames);
@@ -24,6 +26,7 @@ class _SearchTapScreenState extends State<SearchTapScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Material(
       child: Scaffold(
         body: SingleChildScrollView(
@@ -118,8 +121,6 @@ class _SearchTapScreenState extends State<SearchTapScreen> {
                   children: [
                     CustomButton(
                       text: 'Phim đang chiếu',
-                      width: MediaQuery.of(context).size.width / 3,
-                      height: MediaQuery.of(context).size.width / 11,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         color: Colors.white
                       ),
@@ -131,8 +132,6 @@ class _SearchTapScreenState extends State<SearchTapScreen> {
                     ),
                     CustomButton(
                       text: 'Phim sắp chiếu',
-                      width: MediaQuery.of(context).size.width / 3,
-                      height: MediaQuery.of(context).size.width / 11,
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         color: Colors.white
                       ),
@@ -272,4 +271,9 @@ class _SearchTapScreenState extends State<SearchTapScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    searchController.dispose();
+  }
 }

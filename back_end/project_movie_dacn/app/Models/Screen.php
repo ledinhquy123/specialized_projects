@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Screen extends Model
 {
     use HasFactory;
+
+    public function seats() {
+        return $this->hasMany(
+            Seat::class, 'screen_id', 'id'
+        );
+    }
 }
