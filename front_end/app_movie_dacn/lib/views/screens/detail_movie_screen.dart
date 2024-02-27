@@ -1,6 +1,6 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
+import 'package:app_movie/controllers/actor_controller.dart';
+import 'package:app_movie/controllers/comment_controller.dart';
 import 'package:app_movie/services/movies_api.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_snackbar.dart';
@@ -51,7 +51,7 @@ class _DeatailMovieScreenState extends State<DeatailMovieScreen> {
   }
 
   Future<List<List<dynamic>>> fetchActor() async {
-    dataActor = await getActor();
+    dataActor = await ActorController.getActor(widget.id);
     await getMovieComments();
     final check = await MovieApi.checkUserComment({
       'userId': user['id'],
@@ -320,7 +320,7 @@ class _DeatailMovieScreenState extends State<DeatailMovieScreen> {
                                                     color: primaryMain1,
                                                   ),
                                                 ));
-                                                bool check = await createMovieComment(
+                                                bool check = await CommentController.createMovieComment(
                                                   {
                                                     "content": _commentController.text,
                                                     "idUser": user['id'],
@@ -553,23 +553,6 @@ class _DeatailMovieScreenState extends State<DeatailMovieScreen> {
         ),
       ),
     );
-  }
-
-  Future<bool> createMovieComment(Map<String, dynamic> body) async {
-    final response = await MovieApi.createMovieComment(body);
-    if(response) {
-      return true;
-    }else {
-      return false;
-    }
-  }
-
-  Future<List<dynamic>> getActor() async {
-    final response = await MovieApi.getActors(widget.id);
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return [];
   }
 
   Widget infoActor(String urlImage, String name, String character) {

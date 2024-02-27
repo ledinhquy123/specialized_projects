@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/users_api.dart';
+import 'package:app_movie/controllers/user_controller.dart';
 import 'package:app_movie/utils/button_back.dart';
-import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/screens/sign_in_screen.dart';
 import 'package:app_movie/views/widgets/custom_button.dart';
 import 'package:app_movie/views/widgets/custom_text_form_field.dart';
@@ -313,7 +310,7 @@ class _InfoScreenState extends State<InfoScreen> {
                                         'email': _emailController.text
                                       };
                                       print(data);
-                                      checkEmailUpdate(data);
+                                      UserController.checkEmailUpdate(context, data);
                                     }
                                   }
                                 ),
@@ -340,25 +337,6 @@ class _InfoScreenState extends State<InfoScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> checkEmailUpdate(Map<String, String> data) async {
-    final check = await UserApi.checkEmailUpdate(data);
-    if(check) {
-      await updateUser(data);
-      // ignore: use_build_context_synchronously
-      showSnackbar(context, 'Cập nhật thành công', Colors.green);
-    }else {
-      // ignore: use_build_context_synchronously
-      showSnackbar(context, 'Email đã tồn tại trong hệ thống', Colors.red);
-    }
-  }
-
-  Future<void> updateUser(Map<String, String> data) async {
-    final response = await UserApi.updateUser(data);
-    if(response.statusCode == 200) {
-      SignInScreen.user = jsonDecode(response.body)['user'];
-    }
   }
 
   @override

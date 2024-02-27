@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
             ]);
         }
         Weekday::create([
-            'name' => 'Chủ nhật'
+            'name' => 'CN'
         ]);
 
         // Screens and seats

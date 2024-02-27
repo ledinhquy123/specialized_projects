@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/movies_api.dart';
+import 'package:app_movie/controllers/movie_controller.dart';
 import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/screens/home_screen.dart';
 import 'package:app_movie/views/widgets/custom_showtime.dart';
@@ -43,7 +41,7 @@ class _ShowtimeTapScreenState extends State<ShowtimeTapScreen> with AutomaticKee
   }
 
   Future<Map<String, dynamic>> fetchShowtime(String weekdayId) async {
-    showtimes = await getShowtime(weekdayId);
+    showtimes = await MovieController.getShowtime(weekdayId);
     keys = showtimes.keys.toList();
     return showtimes;
   }
@@ -313,11 +311,4 @@ class _ShowtimeTapScreenState extends State<ShowtimeTapScreen> with AutomaticKee
     );
   }
 
-  Future<Map<String, dynamic>> getShowtime(String weekdayId) async {
-    final response = await MovieApi.getShowtime(weekdayId);
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    }
-    return Map();
-  }
 }

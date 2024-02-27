@@ -1,10 +1,10 @@
 import 'package:app_movie/constant/colors.dart';
+import 'package:app_movie/controllers/user_controller.dart';
 import 'package:app_movie/views/screens/contact_screen.dart';
 import 'package:app_movie/views/screens/info_screen.dart';
 import 'package:app_movie/views/screens/sign_in_screen.dart';
 import 'package:app_movie/views/widgets/custom_button.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:iconly/iconly.dart';
 
 class ProfileTapScreen extends StatefulWidget {
@@ -127,7 +127,7 @@ class _ProfileTapScreenState extends State<ProfileTapScreen> with AutomaticKeepA
                   ),
                   onTap: () {
                     if(user['access_token'] != null) {
-                      signOutGoogle();
+                      UserController.signOutGoogle();
                     }
                     Navigator.popUntil(context, (route) => route.isFirst);
                   },
@@ -139,17 +139,6 @@ class _ProfileTapScreenState extends State<ProfileTapScreen> with AutomaticKeepA
       ),
     );
   }
-
-  Future<void> signOutGoogle() async {
-  final GoogleSignIn googleSignIn = GoogleSignIn();
-
-  try {
-    await googleSignIn.signOut();
-    print('User signed out from Google');
-  } catch (error) {
-    print('Error signing out from Google: $error');
-  }
-}
 
   Widget customInfo(String text, IconData preIcon, Color precolor, Function()? onTap) {
     return InkWell(

@@ -1,14 +1,13 @@
 import 'dart:math';
 
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/users_api.dart';
+import 'package:app_movie/controllers/email_controller.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/screens/forgot_password_screen.dart';
 import 'package:app_movie/views/widgets/custom_button.dart';
 
 import 'package:app_movie/views/widgets/custom_text_form_field.dart';
-import 'package:email_sender/email_sender.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 
@@ -156,9 +155,45 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
                           color: Colors.white,
                           fontWeight: FontWeight.w700
                         ),
-                        onTap: () {
+                        onTap: () async {
                           if(key.currentState!.validate()) {
-                            verifyEmail();
+                            showDialog(context: context, builder: (context) => const Center(
+                              child: CircularProgressIndicator(
+                                color: primaryMain1,
+                              ),
+                            ));
+
+                            bool check = await EmailController.verifyEmail(context, emailController.text);
+                           
+                            if(check) {
+                              Random random = Random();
+                              // Tạo số ngẫu nhiên từ 10^(3) đến 10^4 - 1
+                              int randomNumber = random.nextInt((pow(10, 4) - pow(10, 3)).toInt()) + pow(10, 3).toInt();
+
+                              // ignore: use_build_context_synchronously
+                              await EmailController.sendEmail(context, emailController.text, randomNumber);
+
+                              // ignore: use_build_context_synchronously
+                              Navigator.pop(context);
+
+                              // ignore: use_build_context_synchronously
+                              Navigator.push(
+                                context, 
+                                MaterialPageRoute(
+                                  builder: (context) => ForgotPassWordScreen(
+                                    inpEmail: emailController.text, 
+                                    code: randomNumber.toString()
+                                  )
+                                )
+                              );
+                              
+                              
+                            }else {
+                              // ignore: use_build_context_synchronously
+                              Navigator.pop(context);
+                              // ignore: use_build_context_synchronously
+                              showSnackbar(context, 'Email không hợp lệ', Colors.red);
+                            }
                           }
                         },
                       ),
@@ -171,42 +206,6 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> sendEmail(String email, int randomNumber) async {
-    try {
-      EmailSender emailSender = EmailSender();
-      await emailSender.sendOtp(email, randomNumber);
-      // ignore: use_build_context_synchronously
-      showSnackbar(context, 'Mã gửi về email của bạn', Colors.green);
-    } catch (error) {
-      print('Error: $error');
-    }
-  }
-
-  Future<void> verifyEmail() async {
-    Random random = Random();
-    // Tạo số ngẫu nhiên từ 10^(3) đến 10^4 - 1
-    int randomNumber = random.nextInt((pow(10, 4) - pow(10, 3)).toInt()) + pow(10, 3).toInt();
-
-    final check = await UserApi.verifyEmail(emailController.text);
-    if(check) {
-      // ignore: use_build_context_synchronously
-      Navigator.push(
-        context, 
-        MaterialPageRoute(
-          builder: (context) => ForgotPassWordScreen(
-            inpEmail: emailController.text, 
-            code: randomNumber.toString()
-          )
-        )
-      );
-      
-      sendEmail(emailController.text, randomNumber);
-    }else {
-      // ignore: use_build_context_synchronously
-      showSnackbar(context, 'Email không hợp lệ', Colors.red);
-    }
   }
 
   @override

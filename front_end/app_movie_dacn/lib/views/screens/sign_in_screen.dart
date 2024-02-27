@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/users_api.dart';
+import 'package:app_movie/controllers/user_controller.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/screens/home_screen.dart';
@@ -11,7 +9,6 @@ import 'package:app_movie/views/widgets/custom_button.dart';
 import 'package:app_movie/views/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
 class SignInScreen extends StatefulWidget {
   static dynamic user;
@@ -30,8 +27,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
   bool passObscure = true;
   bool checked = false;
-
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   @override
   Widget build(BuildContext context) {
@@ -303,7 +298,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                 ),
                               ));
 
-                              bool check = await logInUser();
+                              bool check = await UserController.logInUser(emailController.text, passwordController.text, context);
 
                               if(check) {
                                 // ignore: use_build_context_synchronously
@@ -363,8 +358,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           children: [
                             InkWell(
                               onTap: () {
-                                signInWithGoogle();
-                                // sendGoogleSignInDataToApi('Lê Đình Quý');
+                                UserController.signInWithGoogle(context);
+                                // signInWithGoogle();
                               },
                               child: Container(
                                 width: MediaQuery.of(context).size.width/5,
@@ -464,108 +459,6 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> signInWithGoogle() async {
-    try {
-      await _googleSignIn.signIn();
-      final GoogleSignInAccount? googleUser = _googleSignIn.currentUser;
-      if (googleUser == null) {
-        print('Đăng nhập không thành công');
-        return;
-      }
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-
-       // Gửi thông tin đăng nhập lên Laravel API
-      if(googleUser.toString() != '' && googleAuth.accessToken != null) {
-        String photoUrl = 'https://i.pinimg.com/736x/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg';
-        if(googleUser.photoUrl != null) {
-          photoUrl = googleUser.photoUrl!;
-        } 
-        await sendGoogleSignInDataToApi(
-          googleAuth.accessToken!,
-          googleUser.id,
-          googleUser.displayName!,
-          googleUser.email,
-          photoUrl
-        );
-      } else {
-        print('Không thành công');
-        return;
-      }
-    } catch (error) {
-      print('Sao lại lỗi :))): $error');
-    }
-  }
-
-  Future<void> sendGoogleSignInDataToApi(
-    String accessToken, 
-    String id,
-    String name,
-    String email, 
-    String avatar
-  ) async {
-    final body = {
-      'access_token': accessToken,
-      'provider_id': id,
-      'name': name,
-      'email': email,
-      'avatar': avatar,
-    };
-    final response = await UserApi.sendGoogleSignInDataToApi(body);
-
-    if (response.statusCode == 200) {
-      // Xử lý phản hồi từ Laravel API (nếu cần)
-      // print(jsonDecode(response.body));
-      final json = jsonDecode(response.body);
-      if(json['user'] != null) {
-        SignInScreen.user = json['user'];
-        // ignore: use_build_context_synchronously
-        showSnackbar(context, 'Đăng nhập thành công', Colors.green);
-        // ignore: use_build_context_synchronously
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => const HomeScreen())
-        );
-      }else {
-        // ignore: use_build_context_synchronously
-        showSnackbar(context, 'Đăng nhập thất bại', Colors.red);
-      }
-    } else {
-      print('Failed to send Google Sign-In data. Error code: ${response.statusCode}');
-    }
-  }
-
-
-  Future<bool> logInUser() async {
-    final body = {
-      'email': emailController.text,
-      'password': passwordController.text
-    };
-
-    final response = await UserApi.signInUser(body);
-
-    if(response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-
-      if(json['status'] != ''){
-        if(json['status'] == 1) {
-          SignInScreen.user = json['user'];
-
-          return true;
-        }else {
-          // ignore: use_build_context_synchronously
-          showSnackbar(context, 'Mật khẩu chưa chính xác', Colors.red);
-          return false;
-        }
-      }else {
-        // ignore: use_build_context_synchronously
-        showSnackbar(context, 'Email hoặc mật khẩu không hợp lệ', Colors.red);
-        return false;
-      }
-    }
-    return false;
   }
 
   @override

@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/transaction_api.dart';
+import 'package:app_movie/controllers/transaction_controller.dart';
 import 'package:app_movie/views/screens/sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -29,8 +27,7 @@ class _TicketTapScreenState extends State<TicketTapScreen> with AutomaticKeepAli
   }
 
   Future<List<dynamic>> fetchData() async {
-    allTickets = await getTicket(user['id'].toString());
-    print(allTickets);
+    allTickets = await TransactionController.getTicket(user['id'].toString());
     return allTickets;
   }
 
@@ -249,23 +246,5 @@ class _TicketTapScreenState extends State<TicketTapScreen> with AutomaticKeepAli
         ],
       )
     );
-  }
-
-  Future<List<dynamic>> getTicket(String userId) async {
-    final response = await TransactionApi.getTicket(userId);
-    if(response.statusCode == 200) {
-      final data = jsonDecode(response.body)['data'];
-      if(data != null) return data;
-      return [];
-    }
-    return [];
-  }
-
-  Future<List<dynamic>> getAllTickets() async {
-    final response = await TransactionApi.getAllTickets();
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body)['data'];
-    }
-    return [];
   }
 }

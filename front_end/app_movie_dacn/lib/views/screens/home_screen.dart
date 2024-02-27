@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/movies_api.dart';
+import 'package:app_movie/controllers/movie_controller.dart';
 import 'package:app_movie/views/screens/taps/home_tap_screen.dart';
 import 'package:app_movie/views/screens/taps/profile_tap_screen.dart';
 import 'package:app_movie/views/screens/taps/search_tap_screen.dart';
@@ -41,12 +39,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<List<dynamic>>> fetchData() async {
-    HomeScreen.trendingList = await getMovieTrending();
-    HomeScreen.popularList = await getMoviePopular();
-    HomeScreen.nowPlayingList = await getMovieNowPlaying();
-    HomeScreen.upComingList = await getMovieUpComing();
-    HomeScreen.movieNames = await getMovieName();
-    HomeScreen.weekdayList = await getWeekday();
+    HomeScreen.trendingList = await MovieController.getMovieTrending();
+    HomeScreen.popularList = await MovieController.getMoviePopular();
+    HomeScreen.nowPlayingList = await MovieController.getMovieNowPlaying();
+    HomeScreen.upComingList = await MovieController.getMovieUpComing();
+    HomeScreen.movieNames = await MovieController.getMovieName();
+    HomeScreen.weekdayList = await MovieController.getWeekday();
 
     HomeScreen.allMovies.addAll(HomeScreen.trendingList);
     HomeScreen.allMovies.addAll(HomeScreen.popularList);
@@ -167,52 +165,5 @@ class _HomeScreenState extends State<HomeScreen> {
     )
   ];
 
-  Future<List<dynamic>> getMovieTrending() async {
-    final response = await MovieApi.getMovieTrending();
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return List<dynamic>.empty();
-  }
-
-  Future<List<dynamic>> getMoviePopular() async {
-    final response = await MovieApi.getMoviePopular();
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return List<dynamic>.empty();
-  }
-
-  Future<List<dynamic>> getMovieNowPlaying() async {
-    final response = await MovieApi.getMovieNowPlaying();
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return List<dynamic>.empty();
-  }
-
-  Future<List<dynamic>> getMovieUpComing() async {
-    final response = await MovieApi.getMovieUpComing();
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return List<dynamic>.empty();
-  }
-
-  Future<List<dynamic>> getMovieName() async {
-    final response = await MovieApi.getMovieName();
-    if(response.statusCode == 200) {
-      // print(jsonDecode(response.body));
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return [];
-  }
-
-  Future<List<dynamic>> getWeekday() async {
-    final response = await MovieApi.getWeekday();
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return [];
-  }
+  
 }

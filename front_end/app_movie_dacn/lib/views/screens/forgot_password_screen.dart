@@ -7,11 +7,11 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 
 // ignore: must_be_immutable
 class ForgotPassWordScreen extends StatefulWidget {
-  String? inpEmail;
+  String inpEmail;
   String? code;
   ForgotPassWordScreen({
     super.key,
-    this.inpEmail,
+    required this.inpEmail,
     this.code
   });
 
@@ -61,7 +61,7 @@ class _ForgotPassWordScreenState extends State<ForgotPassWordScreen> {
                       const SizedBox(height: 16),
                 
                       Text(
-                        'Mã xác nhận đã được gửi về\n ${widget.inpEmail!.substring(0, 3)} ****@gmail.com',
+                        'Mã xác nhận đã được gửi về\n ${widget.inpEmail.substring(0, 3)} ****@gmail.com',
                         softWrap: true,
                         textAlign: TextAlign.center,
                         style: Theme.of(context).textTheme.bodyMedium!.copyWith(

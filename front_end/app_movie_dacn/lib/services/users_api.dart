@@ -44,6 +44,8 @@ static Future<http.Response> signUpUser(Map data) async {
     final uri = Uri.parse(url);
     final response = await http.post(uri);
 
+    print(response.statusCode);
+    print(response.body);
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body);
       if(json['status'] == 'found') return true;
@@ -64,7 +66,6 @@ static Future<http.Response> signUpUser(Map data) async {
 
     if(response.statusCode == 200) {
       final json = jsonDecode(response.body);
-      print(json['status']);
       if(json['status'] == 'success') return true;
       return false;
     }

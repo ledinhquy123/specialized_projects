@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/movies_api.dart';
+import 'package:app_movie/controllers/transaction_controller.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/views/screens/bill_screen.dart';
 import 'package:app_movie/views/widgets/custom_button.dart';
@@ -35,7 +33,7 @@ class _SeatScreenState extends State<SeatScreen> {
   }
 
   Future<List<dynamic>> fetchSeats() async {
-    allSeats = await getSeats(
+    allSeats = await TransactionController.getSeats(
       widget.movie['screen_id'].toString(), 
       widget.movie['id'].toString()
     );
@@ -224,15 +222,5 @@ class _SeatScreenState extends State<SeatScreen> {
       ],
     );
   }
-
-  Future<List<dynamic>> getSeats(String screenId, String showtimeId) async {
-    final response = await MovieApi.getSeats(screenId, showtimeId);
-    // print(response.statusCode);
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return [];
-  }
-
   
 }

@@ -158,13 +158,25 @@ class UserController extends Controller
         $password = $request->password;
 
         if($email && $password) {
-            $user = User::where('email', $email)->first();
-            $user->password = Hash::make($password);
-            $user->save();
+            $users = User::where('email', $email)->get();
 
-            $response = [
-                'status' => 'success'
-            ];
+            if($users->count() > 0) {
+                foreach($users as $item) {
+                    if($item->password) {
+                        $user = $item;
+                        $user->password = Hash::make($password);
+                        $user->save();
+                        $response = [
+                            'status' => 'success'
+                        ];
+                        break;
+                    }
+                }    
+            }else {
+                $response = [
+                    'status' => 'failed'
+                ];    
+            }
         }else {
             $response = [
                 'status' => 'failed'

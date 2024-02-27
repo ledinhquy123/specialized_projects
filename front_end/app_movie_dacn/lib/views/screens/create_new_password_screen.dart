@@ -1,8 +1,6 @@
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/users_api.dart';
+import 'package:app_movie/controllers/user_controller.dart';
 import 'package:app_movie/utils/button_back.dart';
-import 'package:app_movie/utils/show_dialog.dart';
-import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/widgets/custom_button.dart';
 import 'package:app_movie/views/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
@@ -10,11 +8,11 @@ import 'package:iconly/iconly.dart';
 
 // ignore: must_be_immutable
 class CreateNewPasswordScreen extends StatefulWidget {
-  String? inpEmail;
+  String inpEmail;
 
   CreateNewPasswordScreen({
     super.key,
-    this.inpEmail
+    required this.inpEmail
   });
 
   @override
@@ -368,7 +366,7 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
                         ),
                         onTap: () {
                           if (key.currentState!.validate()){
-                            changePass();
+                            UserController.changePass(context, widget.inpEmail, passwordControler.text);
                           }
                         }
                       ),
@@ -382,26 +380,6 @@ class _CreateNewPasswordScreenState extends State<CreateNewPasswordScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> changePass() async {
-    final body = {
-      'email': widget.inpEmail,
-      'password': passwordControler.text
-    };
-    bool response = await UserApi.changePass(body);
-    print(response);
-    if(response) {
-      // ignore: use_build_context_synchronously
-      openDialog(
-        context, 
-        'Thành công', 
-        'Tài khoản của bạn đã được đổi mật khẩu thành công'
-      );
-    }else {
-      // ignore: use_build_context_synchronously
-      showSnackbar(context, 'Đổi mật khẩu thất bại', Colors.red);
-    }
   }
 
   @override

@@ -1,5 +1,5 @@
 class ApiUrl {
-  static String domain = 'https://quynhung.000webhostapp.com';
+  static String domain = 'http://103.200.23.247/~cineaura';
   // static String domain = 'http://127.0.0.1:8000';
 
   // MOVIES

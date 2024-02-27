@@ -1,9 +1,6 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
+import 'package:app_movie/controllers/transaction_controller.dart';
 import 'package:app_movie/repo/payment.dart';
-import 'package:app_movie/services/movies_api.dart';
-import 'package:app_movie/services/transaction_api.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/screens/home_screen.dart';
@@ -60,7 +57,7 @@ class _BillScreenState extends State<BillScreen> {
   }
 
   Future<List<List<dynamic>>> fetchData() async {
-    billData = await getBill(widget.data);
+    billData = await TransactionController.getBill(widget.data);
     if(billData.isEmpty) {
       // ignore: use_build_context_synchronously
       Navigator.pop(context);
@@ -68,7 +65,7 @@ class _BillScreenState extends State<BillScreen> {
       showSnackbar(context, 'Bạn chưa chọn ghế', Colors.red);
     }
 
-    transactionData = await getTransactions();
+    transactionData = await TransactionController.getTransactions();
     print(transactionData);
     List<String> keys = transactionData.map((e) => e['id'].toString()).toList();
     List<bool> values = List.generate(transactionData.length, (index) => false);
@@ -426,8 +423,19 @@ class _BillScreenState extends State<BillScreen> {
             break;
           case FlutterZaloPayStatus.success:
             payResult = "Thanh toán thành công";
-            reservations(widget.data);
-            createTicket(transactionTypeId);
+            TransactionController.reservations(widget.data);
+
+            final body = {
+              'user_id': user['id'],
+              'movie_id': widget.movie['movie_id'],
+              'screen_name': widget.movie['screen_name'],
+              'seats_name': nameSeats,
+              'showdate': date['date'],
+              'show_time': widget.movie['start_time'],
+              'total_price': billData.length * 60,
+              'transaction_type_id': transactionTypeId
+            };
+            TransactionController.createTicket(body);
 
             showSnackbar(context, payResult, Colors.green);
             Navigator.popUntil(context, (route) => route.isFirst);
@@ -448,26 +456,6 @@ class _BillScreenState extends State<BillScreen> {
       });
     });
   }  
-
-  Future<void> createTicket(String transactionTypeId) async {
-    final body = {
-      'user_id': user['id'],
-      'movie_id': widget.movie['movie_id'],
-      'screen_name': widget.movie['screen_name'],
-      'seats_name': nameSeats,
-      'showdate': date['date'],
-      'show_time': widget.movie['start_time'],
-      'total_price': billData.length * 60,
-      'transaction_type_id': transactionTypeId
-    };
-    print(body);
-    await TransactionApi.createTicket(body);
-  }
-
-  Future<bool> reservations(Map<String, dynamic> data) async {
-    final response = await MovieApi.reservations(data);
-    return response.statusCode == 200;
-  }
 
   Widget customTransactions(dynamic transaction, String icon, bool select) {
     return InkWell(
@@ -532,19 +520,4 @@ class _BillScreenState extends State<BillScreen> {
     );
   }
 
-  Future<List<dynamic>> getTransactions() async {
-    final response = await TransactionApi.getTransactions();
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return [];
-  }
-
-  Future<List<dynamic>> getBill(Map<String, dynamic> data) async {
-    final response = await MovieApi.getBill(data);
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return [];
-  }
 }

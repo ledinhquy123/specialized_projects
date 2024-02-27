@@ -76,7 +76,7 @@ class CustomMovieSeatScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    '${movie['movie_vote'].toStringAsFixed(1)}/10',
+                    '${double.parse(movie['movie_vote']).toStringAsFixed(1)}/10',
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                       color: Colors.white,
                       fontFamily: 'Poppins',

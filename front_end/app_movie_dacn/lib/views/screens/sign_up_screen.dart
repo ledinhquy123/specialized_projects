@@ -1,10 +1,7 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/users_api.dart';
+import 'package:app_movie/controllers/user_controller.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_dialog.dart';
-import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/widgets/custom_button.dart';
 import 'package:app_movie/views/widgets/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
@@ -534,7 +531,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   color: primaryMain1,
                                 ),
                               ));
-                              bool checkSignUp = await signUpUser();
+                              bool checkSignUp = await UserController.signUpUser(
+                                context, 
+                                nameController.text,emailController.text, 
+                                passwordController.text
+                              );
                               // ignore: use_build_context_synchronously
                               Navigator.pop(context);
                               if(checkSignUp) {
@@ -557,30 +558,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       ),
     );
-  }
-
-  Future<bool> signUpUser() async {
-    final body = {
-      'name': nameController.text,
-      'email': emailController.text,
-      'password': passwordController.text
-    };
-    final response = await UserApi.signUpUser(body);
-
-    if(response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      if(json['message'] != '') {
-        // ignore: use_build_context_synchronously
-        showSnackbar(context, json['message'], Colors.red);
-        return false;
-      }else {
-        return true;
-      }
-    }else {
-      // ignore: use_build_context_synchronously
-      showSnackbar(context, 'Đăng kí thất bại', Colors.red);
-      return false;
-    }
   }
 
   @override

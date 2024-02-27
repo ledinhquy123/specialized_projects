@@ -1,7 +1,5 @@
-import 'dart:convert';
-
 import 'package:app_movie/constant/colors.dart';
-import 'package:app_movie/services/movies_api.dart';
+import 'package:app_movie/controllers/movie_controller.dart';
 import 'package:app_movie/utils/button_back.dart';
 import 'package:app_movie/utils/show_snackbar.dart';
 import 'package:app_movie/views/screens/home_screen.dart';
@@ -50,7 +48,7 @@ class _ShowtimeOfDetailScreenState extends State<ShowtimeOfDetailScreen> {
   }
 
   Future<List<dynamic>> fetchShowtimeWeekdayMovie() async {
-    dataShowtimeWeekdayMovie = await getShowtimeMovieWeekday(
+    dataShowtimeWeekdayMovie = await MovieController.getShowtimeMovieWeekday(
       currentIndex.toString(), widget.idMovie
     );
     return dataShowtimeWeekdayMovie;
@@ -311,11 +309,4 @@ class _ShowtimeOfDetailScreenState extends State<ShowtimeOfDetailScreen> {
     );
   }
 
-  Future<List<dynamic>> getShowtimeMovieWeekday(String weekdayId, String movieId) async {
-    final response = await MovieApi.getShowtimeMovieWeekday(weekdayId, movieId);
-    if(response.statusCode == 200) {
-      return jsonDecode(response.body) as List<dynamic>;
-    }
-    return [];
-  }
 }
