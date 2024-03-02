@@ -44,6 +44,7 @@ class _DeatailMovieScreenState extends State<DeatailMovieScreen> {
       (element) => element['id_movie'] == widget.id
     ).toList();
     movie = movie[0];
+    print(movie);
 
     user = SignInScreen.user;
 
@@ -191,7 +192,7 @@ class _DeatailMovieScreenState extends State<DeatailMovieScreen> {
                                   ),
                                   const SizedBox(height: 32),
                                   Visibility(
-                                    visible: movie['status'] == 1 ? true : false,
+                                    visible: movie['status'] == '1' ? true : false,
                                     replacement: const Text('Hiện tại phim không chiếu tại rạp'),
                                     child: CustomButton(
                                       text: 'Mua vé',
@@ -440,7 +441,7 @@ class _DeatailMovieScreenState extends State<DeatailMovieScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      '${movie['vote_average'].toStringAsFixed(1)}/10',
+                                      '${double.parse(movie['vote_average']).toStringAsFixed(1)}/10',
                                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600

@@ -108,7 +108,7 @@ class CustomSearchMovie extends StatelessWidget {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${item['vote_average'].toStringAsFixed(1)}/10',
+                          '${double.parse(item['vote_average']).toStringAsFixed(1)}/10',
                           style: Theme.of(context).textTheme.bodySmall!.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600

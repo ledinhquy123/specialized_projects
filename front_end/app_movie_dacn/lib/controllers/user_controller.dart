@@ -145,16 +145,13 @@ class UserController {
     }
   }
 
-  static Future<void> checkEmailUpdate(BuildContext context, Map<String, String> data) async {
+  static Future<bool> checkEmailUpdate(BuildContext context, Map<String, String> data) async {
     final check = await UserApi.checkEmailUpdate(data);
     if(check) {
       await updateUser(data);
-      // ignore: use_build_context_synchronously
-      showSnackbar(context, 'Cập nhật thành công', Colors.green);
-    }else {
-      // ignore: use_build_context_synchronously
-      showSnackbar(context, 'Email đã tồn tại trong hệ thống', Colors.red);
+      return true;
     }
+    return false;
   }
   
   static Future<void> updateUser(Map<String, String> data) async {

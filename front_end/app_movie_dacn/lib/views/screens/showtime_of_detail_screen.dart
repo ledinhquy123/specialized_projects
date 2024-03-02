@@ -247,7 +247,7 @@ class _ShowtimeOfDetailScreenState extends State<ShowtimeOfDetailScreen> {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '${movie[0]['vote_average'].toStringAsFixed(1)}/10',
+                              '${double.parse(movie[0]['vote_average']).toStringAsFixed(1)}/10',
                               style: Theme.of(context).textTheme.bodySmall!.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600

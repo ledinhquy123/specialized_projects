@@ -7,7 +7,6 @@ use App\Http\Controllers\api\TransactionController;
 use App\Http\Controllers\Auth\SocialController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Laravel\Socialite\Facades\Socialite;
 
 /*
 |--------------------------------------------------------------------------
